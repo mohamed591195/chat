@@ -1,0 +1,29 @@
+nav {
+    flex-flow: row-reverse;
+}
+
+.user-detail {
+    display: flex;
+    vertical-align: top;
+}
+
+.user-detail img {
+    width: 14em;
+    max-height: auto;
+    border-radius: 20px;
+    margin: 2em;
+    margin-top: 0;
+    box-shadow: 2px 4px 15px gray;
+}
+
+.user-detail h4{
+    letter-spacing: 0.2em;
+}
+
+.user-detail > div > *{
+    margin: 1em;
+}
+
+.user-detail button {
+    padding: 1em;
+}

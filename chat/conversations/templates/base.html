@@ -1,0 +1,90 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}" />
+    {% block css %}
+    {% endblock %}
+    <script src="https://kit.fontawesome.com/00a748d308.js" crossorigin="anonymous"></script>
+    <title>{% block title  %} Chatty {% endblock %} </title>
+</head>
+
+<body>
+    <header>
+        <nav>
+            {% if user.is_authenticated %}
+            {% block searchform %}
+            <form class="search-form" method="POST" action="{% url 'home_view' %}">
+                {% csrf_token %}
+                {{form.query}}
+                <button type="submit"> Search </button>
+            </form>
+            {% endblock %}
+            <ul id="nav-ul1">
+                <li>
+                    <i class="fa fa-bell notifications-bill {% if notifications and not notifications.first.seen %} notify {% endif %}"
+                        aria-hidden="true"></i>
+                    <ul id="notifications-list">
+
+                        {% for notification in notifications %}
+                        <li data-id={{notification.id}}>
+            
+                            <a href="{{notification.sender.get_profile_url}}">{{notification.sender.get_full_name}}</a>
+                            {{notification.content}}
+
+                        </li>
+                        {% empty %}
+                        <li>No Notifications yet</li>
+                        {% endfor %}
+
+                    </ul>
+
+                </li>
+                <li>
+                    <i class="fas fa-user-tie fa-lg avatar"></i>
+                    <ul id="avatar-list">
+                        <li>{{user.get_full_name}}</li>
+                        <li>account info</li>
+                        <li><a href="{% url 'logout_view'%}">Log out</a></li>
+                    </ul>
+                </li>
+
+            </ul>
+            {% endif %}
+        </nav>
+    </header>
+
+    {% block body %}
+    {% endblock %}
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- script to bass vars to base js -->
+    <script type="text/javascript">
+        const setNotficationsSeenURL = "{% url 'set-notfications-seen-view' %}";
+        const currentUserId = {{user.id}}
+        // need to handled when receiving a new notificaiton from channels
+        var loadedNotificationsCount = {{ notifications.count }};
+        // also here will be changed when there is a new notification from channels
+        {% if unseen_notifications_exists %}
+            var unseenNotificationsExists = true;
+        {% else %}
+            var unseenNotificationsExists = false;
+        {% endif %}
+
+    </script>
+    <script type="text/javascript" src="{% static 'js/base.js' %}"></script>
+
+    {% block js %}
+    {% endblock %}
+
+    {% if user.is_authenticated %}
+    <script type="text/javascript" src="{% static 'js/reconnecting-websocket.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/socket-code.js' %}" defer></script>
+    {% endif %}
+
+</body>
+
+</html>

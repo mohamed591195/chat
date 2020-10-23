@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load users_tags %}
+
+{% block title %}
+    {% if request.user == requested_user %} 
+        My profile 
+    {% else %} 
+        {{user.get_full_name}} 
+    {% endif %}
+{% endblock %}
+
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="{% static 'accounts/user-detail.css' %}" />
+{% endblock %}
+
+{% block searchform %}
+{% endblock %}
+
+{% block body %}
+    <main>
+        <div class="container user-detail">
+
+            <img src="{{requested_user.image.url}}"/>
+
+            <div>
+
+                <h4>{{requested_user.get_full_name}}</h4>
+
+                {% if requested_user.bio %}
+                    <p>bio: {{requested_user.bio}}</p>
+                {% endif %}
+
+                {% if requested_user.gender %}
+                    <p><span>gender: </span>{{requested_user.get_gender_display }}</p>
+                {% endif %}
+
+                {% if requested_user != user %}
+                {% with request.user|relation_status:requested_user as status %}
+                <button data-status={{status}} data-id="{{requested_user.id}}" class="message-request">
+                    {% if status == 'pending' %}
+                    cancel
+                    {% else %}
+                    {{status}}
+                    {% endif %}
+                </button>
+                    {% if status == 'pending' %}
+                    <span class="request-status"> pending </span>
+                    {% endif %}
+                {% endwith %}
+                {% endif %}
+                </div>
+        </div>
+    </main>
+{% endblock %}
+
+{% block js %}
+    {% include 'conversations/message-request-script.html'%}
+{% endblock %}
+

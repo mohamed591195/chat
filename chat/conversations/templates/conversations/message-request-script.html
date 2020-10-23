@@ -1,0 +1,57 @@
+<script type="text/javascript">
+
+    $('.message-request').on('click', function () {
+        
+        let status = $(this).data('status');
+        
+        switch(status) {
+            case 'friend':
+                return;
+                break;
+            case 'pending':
+                status = 'cancel';
+                break;
+            // for accept case we will send it as it's
+        }
+       
+        let button = $(this);
+        
+        button.prop('disabled', true);
+        
+        let userId = $(this).data('id');
+        
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'message_request_view' %}",
+            data: {
+                userId,
+                status,
+            },
+            success: function(data){
+                
+                if (data.status === 'created') {
+
+                    button.text('cancel');
+                    button.data('status', 'pending');
+                    button.parent().append(`<span class="request-status"> pending</span>`);
+
+                } else if (data.status === 'canceled') {
+
+                    button.text('message-request');
+                    button.data('status', 'message-request');
+                    $('.request-status').remove();
+
+                } else if (data.status === 'accepted') {
+
+                    button.text('friend');
+                    button.data('status', 'friend');
+                }
+
+                button.prop('disabled', false);
+                
+            }
+        })
+        
+    })
+
+</script>

@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load users_tags %}
+
+{% block title %}
+{% if form.query %} {{form.query.value}} {% else %} search for users {% endif %}
+{% endblock %}
+
+{% block body %}
+<main>
+    <div class="container users-list">
+        {% for user in users %}
+
+        <div class="user-row">
+            <a href="{{user.get_profile_url}}"><img src="{{user.image.url}}"></a>
+            <p><a href="{{user.get_profile_url}}">{{user.get_full_name}}</a></p>
+            {% with request.user|relation_status:user as status %}
+            <button data-status={{status}} data-id="{{user.id}}" class="message-request">
+                {% if status == 'pending' %}
+                    cancel
+                {% else %}
+                    {{status}}
+                {% endif %}
+            </button>
+                {% if status == 'pending' %}
+                <span class="request-status"> pending </span>
+                {% endif %}
+            {% endwith %}
+            
+        </div>
+        {% empty %}
+        <h3 class="center">No Result, <q>Hint: change or modify your search keyword</q></h3>
+        {% endfor %}
+    </div>
+</main>
+{% endblock %}
+
+{% block js %}
+    {% include 'conversations/message-request-script.html'%}
+{% endblock %}
