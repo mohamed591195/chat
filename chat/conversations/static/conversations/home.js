@@ -1,7 +1,47 @@
-var selectedThreadId;
+var selectedThreadId, friendsIds = [];
 
-$('.thread-row').on('click', function () {
+$(document).ready(function () {
+    
+    $.ajax({
+        type: 'GET',
+        url: 'threads-list/',
+        data: {},
+        success: data => {
+            generateThreads(data.threads)
+        },
+        error: (err) => console.log(err)
+    })
+});
 
+function generateThreads(threads) {
+
+    let threadList = $('.thread-list');
+
+    threads.forEach(thread => {
+        // front-end support for threads to have three users or more will be handeled later
+        if (!thread.is_multi) {
+
+            other_user = thread.users.filter(user => user.id !== currentUserId)[0];
+            // friends ids list to be used at pulling their online status
+            friendsIds.push(other_user.id);
+
+            threadList.append(`
+                <div
+                    data-id=${thread.id} 
+                    class="thread-row ${thread.users_have_unseen_msgs.includes(currentUserId) ? 'new-message' : ''}"
+                    data-friend="${other_user.id}"
+                ">  
+                    <img class="thread-img" src="${other_user.image}" />
+                    <strong>${other_user.get_full_name}</strong>    
+                </div> 
+            `);
+        }
+        
+    })
+}
+
+$('.thread-list').on('click', '.thread-row', function () {
+    
     // deselecting last active thread
     $('.thread-row.selected').removeClass('selected');
     $(this).addClass('selected');

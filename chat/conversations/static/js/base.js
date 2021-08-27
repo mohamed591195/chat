@@ -71,7 +71,7 @@ $('.notifications-bill').on('click', function (e) {
 
         $.ajax({
             type: 'POST',
-            url: setNotficationsSeenURL,
+            url: 'set-notifications-seen/',
             data: {
                 id: lastNotificationId,
                 loadedNotificationsCount,

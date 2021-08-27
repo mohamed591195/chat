@@ -7,7 +7,7 @@ from django.db.models import Q
 from django.conf import settings
 import redis
 
-redis_cli = redis.StrictRedis(host=settings.REDIS_HOST, port=REDIS_PORT, db=settings.REDIS_DB)
+redis_cli = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=settings.REDIS_DB)
 
 channel_layer = get_channel_layer()
 
@@ -54,7 +54,9 @@ def handle_consumer_received_data(user, data):
         message.status = data.get('status')
 
         # we add this user to be one of the message viewers
-        message.viewers.add(user)
+        if message.status == 'SEN':
+            message.viewers.add(user)
+            
         message.save()
 
         serialized_message = MessageSerializer(message)
@@ -112,7 +114,8 @@ def handle_consumer_received_data(user, data):
         if redis_cli.scard(online_set_key):
             redis_cli.set(user_status_key, 'online')
 
-        # 2) being here mean online set it empty, so we check away set
+        # 2) being here mean online set it empty and the user not online from any device.
+        #  so we check away set
         elif redis_cli.scard(away_set_key):
             redis_cli.set(user_status_key, 'away')
 
@@ -122,21 +125,21 @@ def handle_consumer_received_data(user, data):
 
         # sending status to online friends
         # bad implementation
-        for thread in user.threads.all():
+        # for thread in user.threads.all():
 
-            friends = thread.users.exlude(id=user.id)
+        #     friends = thread.users.exlude(id=user.id)
 
-            for friend in friends:
+        #     for friend in friends:
 
-                if redis_cli.get(f'user:{friend.id}:status') == 'online':
+        #         if redis_cli.get(f'user:{friend.id}:status') == 'online':
 
-                    async_to_sync(channel_layer.group_send)(
-                        friend.get_channels_group,
-                        {
-                            'type': 'send_message',
-                            'message': 'serialized_message.data'
-                        }
-                    )
+        #             async_to_sync(channel_layer.group_send)(
+        #                 friend.get_channels_group,
+        #                 {
+        #                     'type': 'send_message',
+        #                     'message': 'serialized_message.data'
+        #                 }
+        #             )
     
                
 def send_notification(notification):

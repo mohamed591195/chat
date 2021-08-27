@@ -63,7 +63,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <!-- script to bass vars to base js -->
     <script type="text/javascript">
-        const setNotficationsSeenURL = "{% url 'set-notfications-seen-view' %}";
+
         const currentUserId = {{user.id}}
         // need to handled when receiving a new notificaiton from channels
         var loadedNotificationsCount = {{ notifications.count }};

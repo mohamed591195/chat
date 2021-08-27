@@ -68,11 +68,15 @@ socket.onmessage = function (e) {
         if (message.status == "SNT") {
 
             targeted_message = $(`.chat-message[data-id='']`);
-
+            // if it's sent we add previous step here after getting the message
+            // which is adding the id it saved with
             targeted_message.attr('data-id', `${message.id}`);
         }
         else {
+            // here we remove the message status from previous message only
+            // if the last one is seen because it it's seen we just show the last one status
             if (message.status == 'SEN') { $('span.seen-style').empty() }
+
             targeted_message = $(`.chat-message[data-id="${message.id}"]`);
         }
         
@@ -125,7 +129,7 @@ document.addEventListener('visibilitychange', function () {
 $('.chat-container').on('click', function (e) {
     
     // if there is a thread with new message and is selected right now 
-    let selectedThreadWithNewMsg = $('.thread-row.new-message.selected')
+    let selectedThreadWithNewMsg = $('.thread-row.new-message.selected');
 
     if (selectedThreadWithNewMsg.length) {
 
@@ -147,7 +151,7 @@ $('#message-input').on('keyup', e => {
 
 $('.fa-paper-plane').on('click', () => {
 
-    messageText = $('#message-input').val().trim();
+    let messageText = $('#message-input').val().trim();
     
     if (!messageText || !selectedThreadId) return;
     
@@ -165,7 +169,7 @@ $('.fa-paper-plane').on('click', () => {
     chatLog.animate({ scrollTop: chatLog.prop('scrollHeight') }, 1000)
     
     // we will need to respond from server that message sent
-    // so we add sent mark 
+    // when it happen we will add sent mark later in other function
     socket.send(JSON.stringify({
         action: 'send-message',
         text: messageText,

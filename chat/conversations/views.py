@@ -10,7 +10,7 @@ from django.contrib.auth import get_user_model
 from django.db.models import Q
 from .utils import send_notification, send_updated_message_status
 from .models import Thread, Message
-from .serializers import MessageSerializer
+from .serializers import MessageSerializer, ThreadSerializer
 
 
 User = get_user_model()
@@ -115,6 +115,17 @@ def message_request(request):
 
     return JsonResponse(data_to_return)
 
+def get_threads(request):
+    user = request.user
+
+    if user.is_authenticated:
+
+        serialized_threads = ThreadSerializer(user.threads.all(), many=True)
+
+        return JsonResponse({'threads': serialized_threads.data})
+
+    return JsonResponse(data={}, status=400)
+
 
 def get_thread_messages(request):
     
@@ -129,7 +140,7 @@ def get_thread_messages(request):
 
         if thread:
             
-            messages = thread.messages.exclude(Q(sender=user) | Q(status='SEN'))
+            messages = thread.messages.exclude(Q(sender=user) | Q(viewers=user))
 
             if messages.exists():
                 
@@ -138,9 +149,10 @@ def get_thread_messages(request):
                     message.viewers.add(user)
                     message.save()
     
-                # we send the status of the last message so all of the above messages 
-                # appears as sent 
+                # we send the status of the last message (sent status) so all of the above 
+                # messages appear as sent 
                 last_message = thread.messages.last()
+                
                 serialized_message = MessageSerializer(last_message)
                 # we send the new status to message sender
                 send_updated_message_status(last_message.sender, serialized_message)

@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.utils import cached_property
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 
 User = get_user_model()
 
@@ -29,7 +30,13 @@ class Thread(TimeStamp):
             return True
         return False
 
-
+    @cached_property
+    def users_have_unseen_msgs(self):
+        users = []
+        for user in self.users.all():
+            if self.messages.exclude(Q(sender=user) | Q(viewers=user)).count():
+                users.append(user.id)
+        return users
 
 class Message(TimeStamp):
 

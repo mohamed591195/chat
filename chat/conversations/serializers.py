@@ -1,6 +1,25 @@
 from rest_framework import serializers
-from .models import Message
+from .models import Message, Thread
+from django.contrib.auth import get_user_model
 
+User = get_user_model()
+
+
+class ThreadUserSerilizer(serializers.ModelSerializer):
+
+    image = serializers.CharField(source='image.url', read_only=True)
+
+    class Meta:
+        model = User
+        fields = ['id', 'get_full_name', 'image']
+        
+class ThreadSerializer(serializers.ModelSerializer):
+
+    users = ThreadUserSerilizer(many=True, read_only=True)
+
+    class Meta:
+        model = Thread
+        fields = ['id', 'users', 'is_multi', 'users_have_unseen_msgs', 'title']
 
 class ViewerImageField(serializers.RelatedField):
     def to_representation(self, value):

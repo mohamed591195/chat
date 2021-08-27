@@ -17,8 +17,7 @@ regular_patterns = [
 
 # ajax patterns
 ajax_patterns = [
-     path('set-notifications-seen/', views.set_notficiatons_seen,
-         name='set-notfications-seen-view'),
+     path('set-notifications-seen/', views.set_notficiatons_seen),
 
 ]
 

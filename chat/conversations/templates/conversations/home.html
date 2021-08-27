@@ -13,18 +13,7 @@ Welcome {{user.get_full_name}}
 {% block body %}
     <main class="thread-main">
         <aside class="thread-list">
-            {% for thread in user.threads.all %}
-                <div data-id={{thread.id}} class="thread-row {% if thread|has_unseen_message:user %} new-message {% endif %}">
-                    {% if thread.is_multi %}
-                        <img src="#" />
-                    {% else %}
-                        {% with thread|get_other_side:user as friend %}
-                        <img class="thread-img" src="{{friend.image.url}}" />
-                        <strong>{{friend.get_full_name}}</strong>
-                        {% endwith %}
-                    {% endif %}
-                </div>
-            {% endfor %}
+            <!-- threads appears here -->
         </aside>
         <div class="chat-container">
 
